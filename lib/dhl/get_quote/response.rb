@@ -42,7 +42,7 @@ class Dhl::GetQuote::Response
     return if error?
 
     qtd_shp = [ @parsed_xml["DCTResponse"]["GetQuoteResponse"]["BkgDetails"]["QtdShp"] ].flatten
-    qtd_s_in_ad_cur = qtd_shp.detect{|q|q["TransInd"] == "Y"}["QtdSInAdCur"]
+    qtd_s_in_ad_cur = qtd_shp.detect{|q|q["TransInd"] == "Y" && q.has_key?("QtdSInAdCur")}["QtdSInAdCur"]
 
     pricing = if x = qtd_s_in_ad_cur.detect{|q|q["CurrencyRoleTypeCode"]==currency_role_type_code}
       x
