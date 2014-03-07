@@ -42,12 +42,16 @@ class Dhl::GetQuote::Response
     return if error?
 
     qtd_shp = [ @parsed_xml["DCTResponse"]["GetQuoteResponse"]["BkgDetails"]["QtdShp"] ].flatten
-    qtd_s_in_ad_cur = qtd_shp.detect{|q|q["TransInd"] == "Y" && q.has_key?("QtdSInAdCur")}["QtdSInAdCur"]
 
-    pricing = if x = qtd_s_in_ad_cur.detect{|q|q["CurrencyRoleTypeCode"]==currency_role_type_code}
-      x
+    trans_ind = qtd_shp.detect{|q| q["TransInd"] == "Y"}
+
+    qtd_s_in_ad_cur = qtd_shp.detect{|q| q.has_key?("QtdSInAdCur")}["QtdSInAdCur"]
+    pricing = []
+
+    if trans_ind
+      pricing = qtd_s_in_ad_cur.detect{|q|q["CurrencyRoleTypeCode"]==currency_role_type_code}
     else
-      qtd_s_in_ad_cur.first
+      pricing = qtd_s_in_ad_cur.first
     end
 
     pricing.each do |k,v|
@@ -105,11 +109,8 @@ protected
         result = note["Condition"].is_a?(Hash) 
       end
     end
-    result
 
-    #@parsed_xml["DCTResponse"]["GetQuoteResponse"] &&
-      #@parsed_xml["DCTResponse"]["GetQuoteResponse"]["Note"] &&
-        #@parsed_xml["DCTResponse"]["GetQuoteResponse"]["Note"]["Condition"].is_a?(Hash)
+    result
   end
 
   def create_condition_errors
