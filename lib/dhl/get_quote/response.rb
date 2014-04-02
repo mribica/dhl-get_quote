@@ -45,7 +45,13 @@ class Dhl::GetQuote::Response
 
     trans_ind = qtd_shp.detect{|q| q["TransInd"] == "Y"}
 
-    qtd_s_in_ad_cur = qtd_shp.detect{|q| q.has_key?("QtdSInAdCur")}["QtdSInAdCur"]
+    qtd_s_in_ad_cur = qtd_shp.detect{|q| q.has_key?("QtdSInAdCur")}
+
+    if qtd_s_in_ad_cur.blank?
+      raise ResponseHasNoPriceError
+    end
+
+    qtd_s_in_ad_cur = qtd_s_in_ad_cur["QtdSInAdCur"]
     pricing = []
 
     if trans_ind

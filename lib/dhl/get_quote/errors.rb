@@ -8,6 +8,8 @@ class Dhl::GetQuote
   class CountryCodeError < InputError; end
   class PieceError < InputError; end
 
+  class ResponseHasNoPriceError < StandardError; end
+
   class Upstream < StandardError
     def log_level; :critical; end # by default we will log these
     class UnknownError < Upstream; end
