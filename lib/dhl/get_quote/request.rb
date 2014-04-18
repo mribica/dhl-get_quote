@@ -5,7 +5,7 @@ require 'set'
 
 class Dhl::GetQuote::Request
   attr_reader :site_id, :password, :from_country_code, :from_postal_code, :to_country_code, :to_postal_code, :duty
-  attr_accessor :pieces
+  attr_accessor :pieces, :offset_days
 
   URLS = {
     :production => 'https://xmlpi-ea.dhl.com/XMLShippingServlet',
@@ -29,6 +29,7 @@ class Dhl::GetQuote::Request
     @duty = false
 
     @pieces = []
+    @offset_days = 0
   end
 
   def test_mode?
@@ -165,10 +166,10 @@ class Dhl::GetQuote::Request
   def ready_date(t=Time.now)
     date = Date.parse(t.to_s)
     if (date.cwday >= 6) || (date.cwday >= 5 && t.hour >= 17)
-      date.send(:next_day, 8-date.cwday)
-    else
-      date
-    end.strftime("%Y-%m-%d")
+      date = date.next_day 8 - date.cwday
+    end
+    date += offset_days.to_i
+    date.strftime("%Y-%m-%d")
   end
 
   def post
